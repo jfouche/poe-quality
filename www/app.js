@@ -1,6 +1,7 @@
 const COLS = 3;
 const ROWS = 2;
 const cells = [];
+let highlight = [];
 window.onload = init;
 function init() {
     const root = document.getElementById("inputs");
@@ -16,6 +17,7 @@ function init() {
         root.appendChild(document.createElement("br"));
     }
     document.getElementById("optimizer").onclick = optimize;
+    document.getElementById("remover").onclick = remove;
 }
 class Cell {
     constructor(input, col, row) {
@@ -23,21 +25,37 @@ class Cell {
         this.col = col;
         this.row = row;
     }
-    fill() {
+    reset() {
         const val = Number(this.input.value);
         this.val = isNaN(val) ? 0 : val;
+        this.input.classList.remove("hl");
     }
     get value() {
         return this.val;
     }
+    highlight() {
+        this.input.classList.add("hl");
+    }
+    clear() {
+        this.input.value = "";
+    }
 }
 function optimize() {
-    cells.forEach((c) => c.fill());
+    document.getElementById("result").innerHTML = "";
+    cells.forEach((c) => c.reset());
     cells.sort((a, b) => b.value - a.value);
-    const backup = cells.slice();
-    console.table(backup);
     const res = find(40, cells);
-    console.table(res);
+    if (res === undefined) {
+        highlight = [];
+        document.getElementById("result").innerHTML = "No solutions";
+    }
+    else {
+        document.getElementById("result").innerHTML = "found :)";
+        for (let c of res) {
+            c.highlight();
+        }
+        highlight = res;
+    }
 }
 function find(value, arr) {
     // Search for exact value
@@ -57,5 +75,10 @@ function find(value, arr) {
     }
     // not found
     return undefined;
+}
+function remove() {
+    for (let c of highlight) {
+        c.clear();
+    }
 }
 //# sourceMappingURL=app.js.map

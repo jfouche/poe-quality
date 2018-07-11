@@ -1,6 +1,7 @@
 const COLS = 3;
 const ROWS = 2;
 const cells: Array<Cell> = [];
+let highlight: Array<Cell> = [];
 
 window.onload = init;
 
@@ -19,6 +20,7 @@ function init() {
     }
 
     document.getElementById("optimizer").onclick = optimize;
+    document.getElementById("remover").onclick = remove;
 }
 
 class Cell {
@@ -33,29 +35,48 @@ class Cell {
         this.row = row;
     }
 
-    fill() {
+    reset() {
         const val = Number(this.input.value);
         this.val = isNaN(val) ? 0 : val;
+        this.input.classList.remove("hl");
     }
 
     get value() {
         return this.val;
     }
+
+    highlight() {
+        this.input.classList.add("hl");
+    }
+
+    clear() {
+        this.input.value = "";
+    }
 }
 
 function optimize() {
-    cells.forEach((c) => c.fill());
+    document.getElementById("result").innerHTML = "";
+    cells.forEach((c) => c.reset());
     cells.sort((a, b) => b.value - a.value);
 
     const res = find(40, cells);
-    console.table(res);
+    if (res === undefined) {
+        highlight = [];
+        document.getElementById("result").innerHTML = "No solutions";
+    } else {
+        document.getElementById("result").innerHTML = "found :)";
+        for (let c of res) {
+            c.highlight();
+        }
+        highlight = res;
+    }
 }
 
 function find(value: number, arr: Cell[]): Cell[] {
     // Search for exact value
     for (let c of arr) {
         if (c.value === value) {
-            return[c];
+            return [c];
         }
     }
 
@@ -63,7 +84,7 @@ function find(value: number, arr: Cell[]): Cell[] {
     for (let i = 0; i < arr.length - 1; i++) {
         let c = arr[i];
         let newValue = value - c.value;
-        let found = find(newValue, arr.slice(i+1));
+        let found = find(newValue, arr.slice(i + 1));
         if (found !== undefined) {
             return [c].concat(found);
         }
@@ -71,4 +92,10 @@ function find(value: number, arr: Cell[]): Cell[] {
 
     // not found
     return undefined;
+}
+
+function remove() {
+    for (let c of highlight) {
+        c.clear();
+    }
 }
