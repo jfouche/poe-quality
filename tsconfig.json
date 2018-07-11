@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "module": "es6",
+        "noImplicitAny": true,
+        "sourceMap": true,
+        "outDir": "www"
+    },
+    "include": [
+        "app/**/*.ts"
+    ] 
+}
