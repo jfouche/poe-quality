@@ -1,8 +1,10 @@
-const COLS = 2;
+const COLS = 3;
 const ROWS = 2;
-const cells: Cell[] = [];
+const cells: Array<Cell> = [];
 
-window.onload = () => {
+window.onload = init;
+
+function init() {
     const root = document.getElementById("inputs");
     for (let r = 0; r < ROWS; r++) {
         for (let c = 0; c < COLS; c++) {
@@ -16,38 +18,57 @@ window.onload = () => {
         root.appendChild(document.createElement("br"));
     }
 
-    document.getElementById("optimizer").onclick = () => optimize();
+    document.getElementById("optimizer").onclick = optimize;
 }
 
 class Cell {
-    readonly input: HTMLInputElement;
     readonly col: number;
     readonly row: number;
+    private readonly input: HTMLInputElement;
+    private val: number;
 
     constructor(input: HTMLInputElement, col: number, row: number) {
         this.input = input;
         this.col = col;
         this.row = row;
     }
+
+    fill() {
+        const val = Number(this.input.value);
+        this.val = isNaN(val) ? 0 : val;
+    }
+
+    get value() {
+        return this.val;
+    }
 }
 
 function optimize() {
-    cells.sort(cellCompare);
+    cells.forEach((c) => c.fill());
+    cells.sort((a, b) => b.value - a.value);
 
-
+    const res = find(40, cells);
+    console.table(res);
 }
 
-function cellCompare(a: Cell, b: Cell): number {
-    const va = Number(a.input.value);
-    const vb = Number(b.input.value);
-    if (isNaN(va) && isNaN(vb)) {
-        return 0;
+function find(value: number, arr: Cell[]): Cell[] {
+    // Search for exact value
+    for (let c of arr) {
+        if (c.value === value) {
+            return[c];
+        }
     }
-    else if (isNaN(va)) {
-        return 1;
+
+    // search for multiple values
+    for (let i = 0; i < arr.length - 1; i++) {
+        let c = arr[i];
+        let newValue = value - c.value;
+        let found = find(newValue, arr.slice(i+1));
+        if (found !== undefined) {
+            return [c].concat(found);
+        }
     }
-    else if (isNaN(vb)) {
-        return -1;
-    }
-    return vb - va;
+
+    // not found
+    return undefined;
 }
