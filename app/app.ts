@@ -1,5 +1,5 @@
-const COLS = 3;
-const ROWS = 2;
+const COLS = 8;
+const ROWS = 15;
 const cells: Array<Cell> = [];
 let highlight: Array<Cell> = [];
 
@@ -35,7 +35,7 @@ class Cell {
         this.row = row;
     }
 
-    reset() {
+    init() {
         const val = Number(this.input.value);
         this.val = isNaN(val) ? 0 : val;
         this.input.classList.remove("hl");
@@ -49,29 +49,34 @@ class Cell {
         this.input.classList.add("hl");
     }
 
-    clear() {
+    empty() {
         this.input.value = "";
     }
 }
 
 function optimize() {
     document.getElementById("result").innerHTML = "";
-    cells.forEach((c) => c.reset());
+    cells.forEach((c) => c.init());
     cells.sort((a, b) => b.value - a.value);
 
     const res = find(40, cells);
-    if (res === undefined) {
-        highlight = [];
+    highlight = res === undefined ? [] : res;
+    for (let c of res) {
+        c.highlight();
+    }
+
+    if (highlight.length === 0) {
         document.getElementById("result").innerHTML = "No solutions";
     } else {
         document.getElementById("result").innerHTML = "found :)";
-        for (let c of res) {
-            c.highlight();
-        }
-        highlight = res;
     }
 }
 
+/**
+ * recursive function to find a way to obtain @value from @arr
+ * @param value 
+ * @param arr 
+ */
 function find(value: number, arr: Cell[]): Cell[] {
     // Search for exact value
     for (let c of arr) {
@@ -83,10 +88,16 @@ function find(value: number, arr: Cell[]): Cell[] {
     // search for multiple values
     for (let i = 0; i < arr.length - 1; i++) {
         let c = arr[i];
+        if (c.value === 0) {
+            // no more value to check
+            break;
+        }
         let newValue = value - c.value;
-        let found = find(newValue, arr.slice(i + 1));
-        if (found !== undefined) {
-            return [c].concat(found);
+        if (newValue > 0) {
+            let found = find(newValue, arr.slice(i + 1));
+            if (found !== undefined) {
+                return [c].concat(found);
+            }
         }
     }
 
@@ -96,6 +107,6 @@ function find(value: number, arr: Cell[]): Cell[] {
 
 function remove() {
     for (let c of highlight) {
-        c.clear();
+        c.empty();
     }
 }
