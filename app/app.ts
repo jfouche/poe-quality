@@ -61,14 +61,13 @@ function optimize() {
 
     const res = find(40, cells);
     highlight = res === undefined ? [] : res;
-    for (let c of res) {
-        c.highlight();
-    }
-
     if (highlight.length === 0) {
         document.getElementById("result").innerHTML = "No solutions";
     } else {
         document.getElementById("result").innerHTML = "found :)";
+        for (let c of highlight) {
+            c.highlight();
+        }
     }
 }
 
